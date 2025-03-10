@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creativity Review Experiment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 40px;
+        }
+        .hidden {
+            display: none;
+        }
+        textarea {
+            width: 80%;
+            height: 150px;
+            font-size: 16px;
+            padding: 10px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="range"] {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Page 1 -->
+    <div id="page1">
+        <h2>Please review this property</h2>
+        <p><a href="https://maps.app.goo.gl/7TtBejMH8sLSmBGH6" target="_blank">Click here to view the property</a></p>
+        <textarea id="review1" placeholder="Type your review here..." style="color: black;"></textarea>
+        <br>
+        <button onclick="nextPage(1)">Next</button>
+    </div>
+    
+    <!-- Page 2 -->
+    <div id="page2" class="hidden">
+        <h2>Please review this property</h2>
+        <p><a href="https://maps.app.goo.gl/phtodxWdGY2BkQ8s7" target="_blank">Click here to view the property</a></p>
+        <textarea id="review2" placeholder="Type your review here..." style="color: red;"></textarea>
+        <br>
+        <button onclick="nextPage(2)">Next</button>
+    </div>
+    
+    <!-- Page 3 -->
+    <div id="page3" class="hidden">
+        <h2>How creative do you think you are?</h2>
+        <label for="creativity">Rate from 1 (Not Creative) to 7 (Very Creative):</label>
+        <br>
+        <input type="range" id="creativity" min="1" max="7" step="1" oninput="updateSliderValue(this.value)">
+        <p id="sliderValue">4</p>
+        <br>
+        <button onclick="submitResponse()">Submit</button>
+    </div>
+    
+    <script>
+        // Function to switch pages
+        function nextPage(currentPage) {
+            console.log("Moving from page", currentPage);
+            document.getElementById("page" + currentPage).style.display = "none";  // Hide current page
+            document.getElementById("page" + (currentPage + 1)).style.display = "block";  // Show next page
+        }
+
+        // Update the slider text value
+        function updateSliderValue(value) {
+            document.getElementById("sliderValue").innerText = value;
+        }
+        
+        // Function to submit response
+        function submitResponse() {
+            let review1 = document.getElementById("review1").value;
+            let review2 = document.getElementById("review2").value;
+            let creativityScore = document.getElementById("creativity").value;
+
+            if (review1.trim() === "" || review2.trim() === "" || creativityScore === "") {
+                alert("Please complete all fields before submitting.");
+                return;
+            }
+
+            let response = {
+                review1: review1,
+                review2: review2,
+                creativity: creativityScore
+            };
+
+            fetch("https://script.google.com/macros/s/AKfycbz2EcJo2VxDiaD4yNZ-eMZbm6lUjIkkqKk_6BYVWvN_BQ5mnXw4NGxeqDGqBYNnVk1mAw/exec", {  
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response)
+            })
+            .then(res => res.text())
+            .then(data => {
+                alert("Thank you! Your response has been recorded.");
+                console.log("Server response:", data);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("There was an issue submitting your response.");
+            });
+        }
+
+        // Ensure only Page 1 is visible initially
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("page1").style.display = "block";
+            document.getElementById("page2").style.display = "none";
+            document.getElementById("page3").style.display = "none";
+        });
+    </script>
+</body>
+</html>
